@@ -206,5 +206,5 @@ Este projeto é de uso interno da organização Pontualize.
 
 ---
 
-**Última atualização**: 2024
+**Última atualização**: 2026-02-10
 **Versão**: 1.0.0

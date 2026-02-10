@@ -80,7 +80,7 @@ jobs:
           # Lista usuários únicos
           echo "- Colaboradores que registraram ponto:" >> "$RELATORIO"
           grep -rh "^\- \*\*" registros-ponto/${{ env.MES_ANO }}-*.md 2>/dev/null | \
-            sed -E 's/.*- ([^ ]+)$/\1/' | sort -u | \
+            sed -E 's/.* - (.+)$/\1/' | sort -u | \
             while read usuario; do echo "  - $usuario" >> "$RELATORIO"; done || true
       
       - name: Commit relatório
