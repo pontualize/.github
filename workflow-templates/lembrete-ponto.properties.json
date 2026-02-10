@@ -1,0 +1,7 @@
+{
+  "name": "Lembrete de Registro de Ponto",
+  "description": "Workflow para enviar lembretes automáticos de registro de ponto",
+  "iconName": "bell",
+  "categories": ["Automation", "Utilities"],
+  "filePatterns": ["lembrete-ponto\\.yml$"]
+}

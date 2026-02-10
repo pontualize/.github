@@ -1,0 +1,103 @@
+name: Correção de Ponto
+description: Template para solicitar correção de registro de ponto
+title: "[CORREÇÃO] "
+labels: ["correcao-ponto", "rh"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔧 Correção de Ponto
+        Preencha os campos abaixo para solicitar correção de registro de ponto.
+  
+  - type: input
+    id: solicitante
+    attributes:
+      label: Nome do Colaborador
+      description: Seu nome completo
+      placeholder: ex. Carlos Oliveira
+    validations:
+      required: true
+  
+  - type: input
+    id: data
+    attributes:
+      label: Data do Registro
+      description: Data que precisa de correção
+      placeholder: YYYY-MM-DD
+    validations:
+      required: true
+  
+  - type: dropdown
+    id: tipo-registro
+    attributes:
+      label: Tipo de Registro
+      description: Qual registro precisa ser corrigido?
+      options:
+        - Entrada
+        - Saída para almoço
+        - Retorno do almoço
+        - Saída
+    validations:
+      required: true
+  
+  - type: input
+    id: horario-registrado
+    attributes:
+      label: Horário Registrado
+      description: Horário que está registrado no sistema (se houver)
+      placeholder: HH:MM
+    validations:
+      required: false
+  
+  - type: input
+    id: horario-correto
+    attributes:
+      label: Horário Correto
+      description: Horário que deveria estar registrado
+      placeholder: HH:MM
+    validations:
+      required: true
+  
+  - type: dropdown
+    id: motivo
+    attributes:
+      label: Motivo da Correção
+      description: Por que o registro está incorreto?
+      options:
+        - Esquecimento de registrar
+        - Registro em horário errado
+        - Problema técnico no sistema
+        - Ausência justificada (atestado médico)
+        - Ausência justificada (compromisso pessoal)
+        - Trabalho externo/visita
+        - Outro
+    validations:
+      required: true
+  
+  - type: textarea
+    id: justificativa
+    attributes:
+      label: Justificativa Detalhada
+      description: Explique em detalhes o motivo da correção
+      placeholder: Descreva a situação...
+    validations:
+      required: true
+  
+  - type: textarea
+    id: comprovante
+    attributes:
+      label: Comprovantes
+      description: Anexe ou descreva comprovantes (atestados, e-mails, etc.)
+      placeholder: Cole links ou descreva os documentos anexados...
+    validations:
+      required: false
+  
+  - type: checkboxes
+    id: confirmacao
+    attributes:
+      label: Confirmação
+      options:
+        - label: Confirmo que as informações estão corretas
+          required: true
+        - label: Entendo que correções podem requerer aprovação do gestor
+          required: true

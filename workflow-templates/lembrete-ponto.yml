@@ -1,0 +1,105 @@
+name: Lembrete de Registro de Ponto
+
+on:
+  schedule:
+    # Segunda a sexta-feira às 9:00, 12:00, 14:00 e 18:00
+    - cron: '0 9,12,14,18 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  enviar-lembrete:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      discussions: write
+    
+    steps:
+      - name: Definir mensagem do lembrete
+        id: mensagem
+        run: |
+          HORA=$(date +%H)
+          
+          case $HORA in
+            09)
+              TIPO="entrada"
+              EMOJI="🟢"
+              MENSAGEM="Bom dia! Lembre-se de registrar sua entrada."
+              ;;
+            12)
+              TIPO="saida-almoco"
+              EMOJI="🟡"
+              MENSAGEM="Hora do almoço! Não esqueça de registrar sua saída."
+              ;;
+            14)
+              TIPO="retorno-almoco"
+              EMOJI="🟡"
+              MENSAGEM="Retornando do almoço? Registre seu retorno."
+              ;;
+            18)
+              TIPO="saida"
+              EMOJI="🔴"
+              MENSAGEM="Fim do expediente! Registre sua saída."
+              ;;
+            *)
+              TIPO="geral"
+              EMOJI="⏰"
+              MENSAGEM="Lembrete de registro de ponto."
+              ;;
+          esac
+          
+          echo "tipo=$TIPO" >> $GITHUB_OUTPUT
+          echo "emoji=$EMOJI" >> $GITHUB_OUTPUT
+          echo "mensagem=$MENSAGEM" >> $GITHUB_OUTPUT
+      
+      - name: Criar discussão de lembrete
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const now = new Date();
+            const dataHora = now.toLocaleString('pt-BR', { 
+              timeZone: 'America/Sao_Paulo',
+              dateStyle: 'full',
+              timeStyle: 'short'
+            });
+            
+            const body = `${{ steps.mensagem.outputs.emoji }} **${{ steps.mensagem.outputs.mensagem }}**
+            
+            📅 ${dataHora}
+            
+            ## Como registrar seu ponto:
+            
+            1. Vá para a aba **Actions** do repositório
+            2. Selecione o workflow **"Registro de Ponto Diário"**
+            3. Clique em **"Run workflow"**
+            4. Escolha a ação apropriada: \`${{ steps.mensagem.outputs.tipo }}\`
+            5. Adicione observações se necessário
+            6. Clique em **"Run workflow"** para confirmar
+            
+            ---
+            
+            💡 **Dica:** Você pode usar o GitHub Mobile para registrar seu ponto de qualquer lugar!
+            
+            📊 Para consultar seus registros, acesse a pasta \`registros-ponto/\` no repositório.
+            `;
+            
+            // Tenta criar uma discussão (se disponível)
+            try {
+              await github.rest.discussions.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: \`${{ steps.mensagem.outputs.emoji }} Lembrete: ${{ steps.mensagem.outputs.tipo }} - \${new Date().toLocaleDateString('pt-BR')}\`,
+                body: body,
+                category_id: 'general'
+              });
+            } catch (error) {
+              console.log('Discussions não disponível, usando issues');
+              
+              // Fallback para issues se discussions não estiver disponível
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: \`${{ steps.mensagem.outputs.emoji }} Lembrete: ${{ steps.mensagem.outputs.tipo }}\`,
+                body: body,
+                labels: ['lembrete', 'ponto']
+              });
+            }

@@ -1,0 +1,96 @@
+name: Solicitação de Horas Extras
+description: Template para solicitar aprovação de horas extras
+title: "[HORAS EXTRAS] "
+labels: ["horas-extras", "rh"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ⏰ Solicitação de Horas Extras
+        Preencha os campos abaixo para solicitar aprovação de horas extras.
+  
+  - type: input
+    id: solicitante
+    attributes:
+      label: Nome do Colaborador
+      description: Seu nome completo
+      placeholder: ex. Maria Santos
+    validations:
+      required: true
+  
+  - type: input
+    id: data
+    attributes:
+      label: Data
+      description: Data em que as horas extras foram/serão realizadas
+      placeholder: YYYY-MM-DD
+    validations:
+      required: true
+  
+  - type: input
+    id: hora-inicio
+    attributes:
+      label: Horário de Início
+      description: Hora de início das horas extras
+      placeholder: HH:MM
+    validations:
+      required: true
+  
+  - type: input
+    id: hora-fim
+    attributes:
+      label: Horário de Término
+      description: Hora de término das horas extras
+      placeholder: HH:MM
+    validations:
+      required: true
+  
+  - type: input
+    id: total-horas
+    attributes:
+      label: Total de Horas
+      description: Total de horas extras
+      placeholder: ex. 3.5
+    validations:
+      required: true
+  
+  - type: dropdown
+    id: tipo
+    attributes:
+      label: Tipo de Hora Extra
+      description: Selecione o tipo
+      options:
+        - Hora extra normal (50%)
+        - Hora extra noturna (adicional noturno)
+        - Hora extra final de semana (100%)
+        - Hora extra feriado (100%)
+    validations:
+      required: true
+  
+  - type: textarea
+    id: justificativa
+    attributes:
+      label: Justificativa
+      description: Motivo da necessidade de horas extras
+      placeholder: Descreva o motivo...
+    validations:
+      required: true
+  
+  - type: input
+    id: projeto
+    attributes:
+      label: Projeto/Atividade
+      description: Projeto ou atividade relacionada
+      placeholder: ex. Projeto X, Sprint Y
+    validations:
+      required: false
+  
+  - type: checkboxes
+    id: confirmacao
+    attributes:
+      label: Confirmação
+      options:
+        - label: Confirmo que as informações estão corretas
+          required: true
+        - label: O gestor imediato está ciente desta solicitação
+          required: true

@@ -1,0 +1,79 @@
+name: Solicitação de Férias
+description: Template para solicitar período de férias
+title: "[FÉRIAS] "
+labels: ["ferias", "rh"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🏖️ Solicitação de Férias
+        Preencha os campos abaixo para solicitar suas férias.
+  
+  - type: input
+    id: solicitante
+    attributes:
+      label: Nome do Colaborador
+      description: Seu nome completo
+      placeholder: ex. João da Silva
+    validations:
+      required: true
+  
+  - type: input
+    id: data-inicio
+    attributes:
+      label: Data de Início
+      description: Primeiro dia de férias
+      placeholder: YYYY-MM-DD
+    validations:
+      required: true
+  
+  - type: input
+    id: data-fim
+    attributes:
+      label: Data de Término
+      description: Último dia de férias
+      placeholder: YYYY-MM-DD
+    validations:
+      required: true
+  
+  - type: input
+    id: total-dias
+    attributes:
+      label: Total de Dias
+      description: Quantidade de dias de férias
+      placeholder: ex. 15
+    validations:
+      required: true
+  
+  - type: dropdown
+    id: tipo
+    attributes:
+      label: Tipo de Férias
+      description: Selecione o tipo de férias
+      options:
+        - Férias integrais (30 dias)
+        - Férias fracionadas (1º período)
+        - Férias fracionadas (2º período)
+        - Férias fracionadas (3º período)
+    validations:
+      required: true
+  
+  - type: textarea
+    id: observacoes
+    attributes:
+      label: Observações
+      description: Informações adicionais (opcional)
+      placeholder: Adicione qualquer informação relevante...
+    validations:
+      required: false
+  
+  - type: checkboxes
+    id: confirmacao
+    attributes:
+      label: Confirmação
+      description: Confirme as informações
+      options:
+        - label: Confirmo que as informações estão corretas
+          required: true
+        - label: Já verifiquei o saldo de férias disponível
+          required: true

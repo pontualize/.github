@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 📚 Documentação RH
+    url: https://github.com/pontualize/.github/blob/main/README.md
+    about: Consulte a documentação completa do sistema de RH
+  - name: 💬 Suporte
+    url: https://github.com/pontualize/.github/discussions
+    about: Tire dúvidas ou discuta questões relacionadas ao RH

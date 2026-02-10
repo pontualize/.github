@@ -1,0 +1,7 @@
+{
+  "name": "Registro de Ponto Diário",
+  "description": "Workflow para registro de entrada, saída e intervalos de trabalho",
+  "iconName": "clock",
+  "categories": ["Automation", "Utilities"],
+  "filePatterns": ["ponto-diario\\.yml$"]
+}

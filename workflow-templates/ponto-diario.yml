@@ -1,0 +1,88 @@
+name: Registro de Ponto Diário
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Ação'
+        required: true
+        type: choice
+        options:
+          - entrada
+          - saida-almoco
+          - retorno-almoco
+          - saida
+      observacao:
+        description: 'Observação (opcional)'
+        required: false
+
+jobs:
+  registrar-ponto:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Configurar ambiente
+        run: |
+          mkdir -p registros-ponto
+          DATA_ATUAL=$(date +%Y-%m-%d)
+          HORA_ATUAL=$(date +%H:%M:%S)
+          USUARIO="${{ github.actor }}"
+          
+          echo "DATA_ATUAL=$DATA_ATUAL" >> $GITHUB_ENV
+          echo "HORA_ATUAL=$HORA_ATUAL" >> $GITHUB_ENV
+          echo "USUARIO=$USUARIO" >> $GITHUB_ENV
+      
+      - name: Registrar ponto
+        run: |
+          ARQUIVO="registros-ponto/${{ env.DATA_ATUAL }}.md"
+          
+          if [ ! -f "$ARQUIVO" ]; then
+            echo "# Registro de Ponto - ${{ env.DATA_ATUAL }}" > "$ARQUIVO"
+            echo "" >> "$ARQUIVO"
+            echo "## Registros" >> "$ARQUIVO"
+            echo "" >> "$ARQUIVO"
+          fi
+          
+          case "${{ github.event.inputs.action }}" in
+            entrada)
+              TIPO="🟢 Entrada"
+              ;;
+            saida-almoco)
+              TIPO="🟡 Saída para Almoço"
+              ;;
+            retorno-almoco)
+              TIPO="🟡 Retorno do Almoço"
+              ;;
+            saida)
+              TIPO="🔴 Saída"
+              ;;
+          esac
+          
+          echo "- **${{ env.HORA_ATUAL }}** - $TIPO - ${{ env.USUARIO }}" >> "$ARQUIVO"
+          
+          if [ -n "${{ github.event.inputs.observacao }}" ]; then
+            echo "  - Observação: ${{ github.event.inputs.observacao }}" >> "$ARQUIVO"
+          fi
+          
+          echo "" >> "$ARQUIVO"
+      
+      - name: Commit e Push
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add registros-ponto/
+          git commit -m "Registro de ponto: ${{ github.event.inputs.action }} - ${{ env.USUARIO }} às ${{ env.HORA_ATUAL }}" || echo "Nada para commitar"
+          git push
+      
+      - name: Notificação
+        run: |
+          echo "✅ Ponto registrado com sucesso!"
+          echo "Usuário: ${{ env.USUARIO }}"
+          echo "Ação: ${{ github.event.inputs.action }}"
+          echo "Data/Hora: ${{ env.DATA_ATUAL }} ${{ env.HORA_ATUAL }}"

@@ -1,0 +1,7 @@
+{
+  "name": "Relatório de Frequência Mensal",
+  "description": "Workflow para gerar relatórios mensais de frequência e horas trabalhadas",
+  "iconName": "file-text",
+  "categories": ["Automation", "Utilities"],
+  "filePatterns": ["relatorio-mensal\\.yml$"]
+}

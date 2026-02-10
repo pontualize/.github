@@ -1,0 +1,107 @@
+name: Relatório de Frequência Mensal
+
+on:
+  schedule:
+    # Executa no último dia do mês às 18:00
+    - cron: '0 18 28-31 * *'
+  workflow_dispatch:
+    inputs:
+      mes:
+        description: 'Mês (1-12)'
+        required: false
+      ano:
+        description: 'Ano (ex: 2024)'
+        required: false
+
+jobs:
+  gerar-relatorio:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Configurar datas
+        run: |
+          if [ -n "${{ github.event.inputs.mes }}" ] && [ -n "${{ github.event.inputs.ano }}" ]; then
+            MES="${{ github.event.inputs.mes }}"
+            ANO="${{ github.event.inputs.ano }}"
+          else
+            MES=$(date +%m)
+            ANO=$(date +%Y)
+          fi
+          
+          # Verifica se é o último dia do mês
+          AMANHA=$(date -d "tomorrow" +%d)
+          if [ "$AMANHA" != "01" ] && [ -z "${{ github.event.inputs.mes }}" ]; then
+            echo "Não é o último dia do mês, pulando execução"
+            exit 0
+          fi
+          
+          echo "MES=$MES" >> $GITHUB_ENV
+          echo "ANO=$ANO" >> $GITHUB_ENV
+          echo "MES_ANO=$ANO-$(printf %02d $MES)" >> $GITHUB_ENV
+      
+      - name: Gerar relatório
+        run: |
+          mkdir -p relatorios-mensais
+          RELATORIO="relatorios-mensais/relatorio-${{ env.MES_ANO }}.md"
+          
+          echo "# Relatório de Frequência - ${{ env.MES_ANO }}" > "$RELATORIO"
+          echo "" >> "$RELATORIO"
+          echo "Gerado em: $(date '+%Y-%m-%d %H:%M:%S')" >> "$RELATORIO"
+          echo "" >> "$RELATORIO"
+          echo "## Resumo de Registros" >> "$RELATORIO"
+          echo "" >> "$RELATORIO"
+          
+          # Processa arquivos de registro do mês
+          for arquivo in registros-ponto/${{ env.MES_ANO }}-*.md; do
+            if [ -f "$arquivo" ]; then
+              DATA=$(basename "$arquivo" .md)
+              echo "### $DATA" >> "$RELATORIO"
+              echo "" >> "$RELATORIO"
+              grep -E "^\- \*\*" "$arquivo" >> "$RELATORIO" || echo "Sem registros" >> "$RELATORIO"
+              echo "" >> "$RELATORIO"
+            fi
+          done
+          
+          echo "## Estatísticas" >> "$RELATORIO"
+          echo "" >> "$RELATORIO"
+          
+          # Conta total de registros
+          TOTAL_REGISTROS=$(grep -r "^\- \*\*" registros-ponto/${{ env.MES_ANO }}-*.md 2>/dev/null | wc -l)
+          echo "- Total de registros: $TOTAL_REGISTROS" >> "$RELATORIO"
+          
+          # Lista usuários únicos
+          echo "- Colaboradores que registraram ponto:" >> "$RELATORIO"
+          grep -rh "^\- \*\*" registros-ponto/${{ env.MES_ANO }}-*.md 2>/dev/null | \
+            sed -E 's/.*- ([^ ]+)$/\1/' | sort -u | \
+            while read usuario; do echo "  - $usuario" >> "$RELATORIO"; done || true
+      
+      - name: Commit relatório
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add relatorios-mensais/
+          git commit -m "Relatório mensal de frequência - ${{ env.MES_ANO }}" || echo "Nada para commitar"
+          git push
+      
+      - name: Criar issue de resumo
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const relatorio = fs.readFileSync('relatorios-mensais/relatorio-${{ env.MES_ANO }}.md', 'utf8');
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '📊 Relatório de Frequência - ${{ env.MES_ANO }}',
+              body: relatorio,
+              labels: ['relatorio', 'rh']
+            });
